@@ -73,6 +73,10 @@
           onsubmit="return confirm('本当に削除しますか？');">
 
         <input type="hidden"
+               name="csrfToken"
+               value="${sessionScope.csrfToken}">
+
+        <input type="hidden"
                name="id"
                value="${product.id}">
 
