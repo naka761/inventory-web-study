@@ -1,7 +1,6 @@
 package dao;
 
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -16,32 +15,11 @@ import model.Product;
  */
 public class ProductDAO {
 
-    private static final String URL =
-            "jdbc:postgresql://localhost:5432/postgres";
-
-    private static final String USER = "postgres";
-
-    // 自分のPostgreSQLの本物のパスワードへ変更する
-    private static final String PASSWORD = "YOUR_DB_PASSWORD";
-
     /**
      * PostgreSQLとの接続を作成する。
      */
     private Connection getConnection() throws SQLException {
-
-        try {
-            Class.forName("org.postgresql.Driver");
-
-        } catch (ClassNotFoundException e) {
-            throw new SQLException(
-                    "PostgreSQL JDBCドライバが見つかりません", e);
-        }
-
-        return DriverManager.getConnection(
-                URL,
-                USER,
-                PASSWORD
-        );
+        return DatabaseConnectionFactory.getConnection();
     }
 
     /**
@@ -80,8 +58,13 @@ public class ProductDAO {
 
         return products;
     }
+
     /**
      * 商品を新規登録する。
+     *
+     * 学習用に単純なINSERT例を残している。
+     * 通常の商品登録画面では、操作履歴も保存する
+     * insertWithLog()を使用する。
      */
     public int insert(Product product) throws SQLException {
 
@@ -103,6 +86,7 @@ public class ProductDAO {
             return statement.executeUpdate();
         }
     }
+
     /**
      * 指定されたIDの商品を1件取得する。
      */
@@ -136,6 +120,7 @@ public class ProductDAO {
 
         return null;
     }
+
     /**
      * 商品情報を更新する。
      */
@@ -160,6 +145,7 @@ public class ProductDAO {
             return statement.executeUpdate();
         }
     }
+
     /**
      * 指定されたIDの商品を削除する。
      */
@@ -180,6 +166,7 @@ public class ProductDAO {
             return statement.executeUpdate();
         }
     }
+
     /**
      * 商品と操作履歴を一つのトランザクションで登録する。
      */
@@ -246,7 +233,7 @@ public class ProductDAO {
                 ) {
                     logStatement.setInt(1, productId);
                     logStatement.setString(2, "CREATE");
-                    //logStatement.setString(2, null);
+                    // logStatement.setString(2, null);
                     logStatement.setInt(3, userId);
 
                     int logCount =

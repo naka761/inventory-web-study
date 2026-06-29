@@ -1,10 +1,10 @@
 package dao;
 
 import java.sql.Connection;
-import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+
 import security.PasswordUtil;
 import model.User;
 
@@ -13,31 +13,11 @@ import model.User;
  */
 public class UserDAO {
 
-    private static final String URL =
-            "jdbc:postgresql://localhost:5432/postgres";
-
-    private static final String USER = "postgres";
-
-    // PostgreSQLの実際のパスワードに変更する
-    private static final String PASSWORD = "YOUR_DB_PASSWORD";
-
+    /**
+     * PostgreSQLとの接続を作成する。
+     */
     private Connection getConnection() throws SQLException {
-
-        try {
-            Class.forName("org.postgresql.Driver");
-
-        } catch (ClassNotFoundException e) {
-            throw new SQLException(
-                    "PostgreSQL JDBCドライバが見つかりません。",
-                    e
-            );
-        }
-
-        return DriverManager.getConnection(
-                URL,
-                USER,
-                PASSWORD
-        );
+        return DatabaseConnectionFactory.getConnection();
     }
 
     /**
