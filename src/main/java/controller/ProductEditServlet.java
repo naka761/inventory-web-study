@@ -44,7 +44,12 @@ public class ProductEditServlet extends HttpServlet {
                 return;
             }
 
-            request.setAttribute("product", product);
+            setFormValues(
+                    request,
+                    String.valueOf(product.getId()),
+                    product.getName(),
+                    String.valueOf(product.getPrice()),
+                    String.valueOf(product.getStock()));
 
             request.getRequestDispatcher(
                     "/WEB-INF/jsp/product-edit.jsp")
@@ -77,23 +82,40 @@ public class ProductEditServlet extends HttpServlet {
         String priceText = request.getParameter("price");
         String stockText = request.getParameter("stock");
 
-        Product product = null;
+        int id;
 
         try {
-            int id = Integer.parseInt(idText);
+            id = Integer.parseInt(idText);
+
+        } catch (NumberFormatException e) {
+            response.sendError(
+                    HttpServletResponse.SC_BAD_REQUEST,
+                    "商品IDが不正です。");
+            return;
+        }
+
+        setFormValues(
+                request,
+                idText,
+                name,
+                priceText,
+                stockText);
+
+        try {
             int price = Integer.parseInt(priceText);
             int stock = Integer.parseInt(stockText);
 
-            product = new Product(
-                    id,
-                    name == null ? "" : name.trim(),
-                    price,
-                    stock
-            );
+            String trimmedName =
+                    name == null ? "" : name.trim();
 
-            if (product.getName().isEmpty()) {
+            if (trimmedName.isEmpty()) {
                 throw new IllegalArgumentException(
                         "商品名を入力してください。");
+            }
+
+            if (trimmedName.length() > 100) {
+                throw new IllegalArgumentException(
+                        "商品名は100文字以内で入力してください。");
             }
 
             if (price < 0) {
@@ -105,6 +127,13 @@ public class ProductEditServlet extends HttpServlet {
                 throw new IllegalArgumentException(
                         "在庫数は0以上で入力してください。");
             }
+
+            Product product = new Product(
+                    id,
+                    trimmedName,
+                    price,
+                    stock
+            );
 
             ProductDAO productDAO = new ProductDAO();
             int updatedCount = productDAO.update(product);
@@ -123,9 +152,7 @@ public class ProductEditServlet extends HttpServlet {
 
             request.setAttribute(
                     "errorMessage",
-                    "商品ID・価格・在庫数は整数で入力してください。");
-
-            request.setAttribute("product", product);
+                    "価格と在庫数は整数で入力してください。");
 
             request.getRequestDispatcher(
                     "/WEB-INF/jsp/product-edit.jsp")
@@ -137,8 +164,6 @@ public class ProductEditServlet extends HttpServlet {
                     "errorMessage",
                     e.getMessage());
 
-            request.setAttribute("product", product);
-
             request.getRequestDispatcher(
                     "/WEB-INF/jsp/product-edit.jsp")
                    .forward(request, response);
@@ -147,5 +172,21 @@ public class ProductEditServlet extends HttpServlet {
             throw new ServletException(
                     "商品の更新に失敗しました。", e);
         }
+    }
+
+    /**
+     * 編集画面へ再表示する値をrequest属性へ保存する。
+     */
+    private void setFormValues(
+            HttpServletRequest request,
+            String id,
+            String name,
+            String price,
+            String stock) {
+
+        request.setAttribute("formId", id);
+        request.setAttribute("formName", name);
+        request.setAttribute("formPrice", price);
+        request.setAttribute("formStock", stock);
     }
 }

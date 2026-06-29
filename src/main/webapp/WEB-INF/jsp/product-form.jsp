@@ -1,7 +1,11 @@
 <%@ page language="java"
          contentType="text/html; charset=UTF-8"
          pageEncoding="UTF-8" %>
-         <%@ taglib prefix="fn"
+
+<%@ taglib prefix="c"
+           uri="http://java.sun.com/jsp/jstl/core" %>
+
+<%@ taglib prefix="fn"
            uri="http://java.sun.com/jsp/jstl/functions" %>
 
 <!DOCTYPE html>
@@ -14,14 +18,18 @@
 
 <h1>商品登録</h1>
 
-<%-- 入力エラーがある場合に表示 --%>
-<p style="color: red;">${errorMessage}</p>
+<c:if test="${not empty errorMessage}">
+    <p style="color: red;">
+        <c:out value="${errorMessage}" />
+    </p>
+</c:if>
 
 <form action="${pageContext.request.contextPath}/products/create"
       method="post">
-      <input type="hidden"
-       name="csrfToken"
-       value="${sessionScope.csrfToken}">
+
+    <input type="hidden"
+           name="csrfToken"
+           value="${sessionScope.csrfToken}">
 
     <p>
         <label>
@@ -29,6 +37,7 @@
             <input type="text"
                    name="name"
                    value="${fn:escapeXml(param.name)}"
+                   maxlength="100"
                    required>
         </label>
     </p>

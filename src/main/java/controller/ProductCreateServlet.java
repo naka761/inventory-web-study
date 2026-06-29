@@ -60,6 +60,13 @@ public class ProductCreateServlet extends HttpServlet {
                         "商品名を入力してください。");
             }
 
+            String trimmedName = name.trim();
+
+            if (trimmedName.length() > 100) {
+                throw new IllegalArgumentException(
+                        "商品名は100文字以内で入力してください。");
+            }
+
             if (price < 0) {
                 throw new IllegalArgumentException(
                         "価格は0以上で入力してください。");
@@ -72,7 +79,7 @@ public class ProductCreateServlet extends HttpServlet {
 
             Product product = new Product(
                     0,
-                    name.trim(),
+                    trimmedName,
                     price,
                     stock
             );
